@@ -28,30 +28,15 @@
 
   /* ---------- data ---------- */
   const cfg = Object.assign({ coverBase: '', coverExt: '.jpg' }, window.PLAYER_CONFIG);
-  const STATIC = window.TRACKS || [];
-  let TRACKS = [];
-  let byId = new Map();
-
-  function prepare(list) {
-    const seen = new Set();
-    return list.map(t => {
-      const base = slug(t.title) || 'track';
-      let id = base, n = 2;
-      while (seen.has(id)) id = base + '-' + n++;
-      seen.add(id);
-      return Object.assign({}, t, {
-        id,
-        src: t.src || '',
-        cover: t.cover || (cfg.coverBase ? cfg.coverBase + base + cfg.coverExt : '')
-      });
+  const TRACKS = (window.TRACKS || []).map(t => {
+    const id = slug(t.title);
+    return Object.assign({}, t, {
+      id,
+      src: t.src || '',
+      cover: t.cover || (cfg.coverBase ? cfg.coverBase + slug(t.title) + cfg.coverExt : '')
     });
-  }
-  function installTracks(list) {
-    TRACKS = prepare(list);
-    byId = new Map(TRACKS.map(t => [t.id, t]));
-  }
-  // built-in list + whatever the releases held on this visitor's last visit
-  installTracks(window.Library ? Library.merge(STATIC, Library.readCache(), cfg) : STATIC);
+  });
+  const byId = new Map(TRACKS.map(t => [t.id, t]));
 
   const MAIN_CATS = ['Phonk', 'Hindi', 'Gujarati', 'Instrumental', 'Devotional'];
   const VIEWS = {
@@ -66,8 +51,8 @@
   };
 
   /* ---------- state ---------- */
-  let liked = store.get('liked', []);
-  let recent = store.get('recent', []);
+  let liked = store.get('liked', []).filter(id => byId.has(id));
+  let recent = store.get('recent', []).filter(id => byId.has(id));
   let likedSet = new Set(liked);
 
   const state = {
@@ -100,8 +85,8 @@
   }
 
   /* ---------- covers ---------- */
-  function coverInner(t, lazy) {
-    return t.cover ? '<img src="' + esc(t.cover) + '" alt="" decoding="async"' + (lazy ? ' loading="lazy"' : '') + '>' : '';
+  function coverInner(t) {
+    return t.cover ? '<img src="' + esc(t.cover) + '" alt="" decoding="async">' : '';
   }
   function setCover(el, t) {
     el.dataset.letter = (t.title.trim()[0] || '♪').toUpperCase();
@@ -137,7 +122,7 @@
     return (
       '<li class="track" data-id="' + esc(t.id) + '" role="button" tabindex="0" style="--i:' + Math.min(i, 14) + '" aria-label="Play ' + esc(t.title) + '">' +
         '<span class="t-num">' + pad2(i + 1) + '</span>' +
-        '<span class="cover t-cover" data-letter="' + letter + '">' + coverInner(t, true) + '</span>' +
+        '<span class="cover t-cover" data-letter="' + letter + '">' + coverInner(t) + '</span>' +
         '<span class="t-title">' + esc(t.title) + '</span>' +
         '<span class="t-cat">' + esc(t.category) + '</span>' +
         '<button class="t-like" aria-label="Like ' + esc(t.title) + '" aria-pressed="false"><svg class="ic"><use href="#i-heart"/></svg></button>' +
@@ -673,22 +658,4 @@
   if (startTrack) select(startTrack);
   state.queue = TRACKS.map(t => t.id);
   render(true);
-
-  /* ---------- pick up songs / covers added to the releases ---------- */
-  function applyUpdate(list) {
-    const wasAll = state.queue.length === TRACKS.length && TRACKS.every(t => state.queue.indexOf(t.id) > -1);
-    installTracks(list);
-    state.queue = wasAll ? TRACKS.map(t => t.id) : state.queue.filter(id => byId.has(id));
-    const t = cur();
-    if (t) {
-      $$('.js-cover').forEach(el => setCover(el, t));
-      if (t.src && audio.paused && audio.getAttribute('src') !== t.src) audio.src = t.src;
-    }
-    if (app.dataset.mode === 'list') renderList(false);
-  }
-  if (window.Library) {
-    Library.refresh(cfg).then(assets => {
-      if (assets) applyUpdate(Library.merge(STATIC, assets, cfg));
-    }).catch(() => { /* offline or rate-limited: keep what we have */ });
-  }
 })();

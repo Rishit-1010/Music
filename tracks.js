@@ -11,27 +11,9 @@
    ========================================================= */
 
 window.PLAYER_CONFIG = {
-  // Where your songs live. The player reads every release of this repo,
-  // so mp3s and cover images you upload there show up by themselves.
-  github: {
-    owner: 'Rishit-1010',
-    repo: 'Music',
-    releases: [],        // [] = all releases, or list tag names e.g. ['Music1', 'Covers']
-    cacheMinutes: 10     // how long a visitor's browser remembers the list
-  },
-
-  // Cover images whose file names don't match a song title:
-  //   'file name as shown in the release': 'Song title'
-  coverMap: {
-    // 'image.png': 'Montagem Alquimia',
-  },
-
-  // Fix a title the file name can't express (apostrophes, capitals...):
-  //   'name as it appears in the file': 'Title you want'
-  titles: {
-    // 'KGF Mashup': 'KGF Mashup',
-  },
-
+  // If you upload cover pictures into a "covers" folder named like the song
+  // (e.g. covers/montagem-alquimia.jpg), set this to 'covers/' and
+  // every song will pick its picture up automatically.
   coverBase: '',
   coverExt: '.jpg'
 };
@@ -82,7 +64,7 @@ window.PLAYER_CONFIG = {
     { title: 'Goti Lo',                      category: 'Gujarati',     src: U + '33335694/GOTI.LO.mp3' },
     { title: 'Matushka Ultrafunk',           category: 'Phonk',        src: U + '33335713/MATUSHKA.ULTRAFUNK.mp3' },
     { title: 'Slava Funk',                   category: 'Phonk',        src: U + '33335754/SLAVA.FUNK.mp3' },
-    { title: 'Slava+Village Funk', file: 'SLAVA X VILLAGE', category: 'Phonk',        src: U + '33335755/SLAVA.X.VILLAGE.mp3' },
+    { title: 'Slava+Village Funk',           category: 'Phonk',        src: U + '33335755/SLAVA.X.VILLAGE.mp3' },
     { title: "I'm a Peaky Blinder",          category: 'English',      src: U + '33335702/I.M.A.PEAKY.BLINDER.mp3' },
     { title: 'Skyfall',                      category: 'English',      src: U + '33335753/SKYFALL.mp3' },
     { title: 'Argentina 2026 World Cup Song', category: 'Spanish',     src: U + '33335668/ARGENTINA.2026.WORLD.CUP.SONG.mp3' },
